@@ -369,96 +369,10 @@ int main(void){
                 rxChar = 0;
                 break;
         }
-        /*
-        if (rxChar == '1') {
-            sendBytes[MINUTE_ONES] = SEVEN_SEG_1;
-            rxChar = 0;
-        }
-        else if (rxChar == '2') {
-            sendBytes[MINUTE_ONES] = SEVEN_SEG_2;
-            rxChar = 0;
-        }
-        else if (rxChar == '3') {
-            sendBytes[MINUTE_ONES] = SEVEN_SEG_3;
-            rxChar = 0;
-        }
-        else if (rxChar == '4') {
-            sendBytes[MINUTE_ONES] = SEVEN_SEG_4;
-            rxChar = 0;
-        }
-        else if (rxChar == '5') {
-            sendBytes[MINUTE_ONES] = SEVEN_SEG_5;
-            rxChar = 0;
-        }
-        else if (rxChar == '6') {
-            sendBytes[MINUTE_ONES] = SEVEN_SEG_6;
-            rxChar = 0;
-        }
-        else if (rxChar == '7') {
-            sendBytes[MINUTE_ONES] = SEVEN_SEG_7;
-            rxChar = 0;
-        }
-        else if (rxChar == '8') {
-            sendBytes[MINUTE_ONES] = SEVEN_SEG_8;
-            rxChar = 0;
-        }
-        else if (rxChar == '9') {
-            sendBytes[MINUTE_ONES] = SEVEN_SEG_9;
-            rxChar = 0;
-        }
-        else if (rxChar == '0') {
-            sendBytes[MINUTE_ONES] = SEVEN_SEG_0;
-            rxChar = 0;
-        }
-        else if (rxChar == 'q') {
-            sendBytes[MINUTE_TENS] = SEVEN_SEG_0;
-            rxChar = 0;
-        }
-        else if (rxChar == 'w') {
-            sendBytes[MINUTE_TENS] = SEVEN_SEG_1;
-            rxChar = 0;
-        }
-        else if (rxChar == 'e') {
-            sendBytes[MINUTE_TENS] = SEVEN_SEG_2;
-            rxChar = 0;
-        }
-        else if (rxChar == 'r') {
-            sendBytes[MINUTE_TENS] = SEVEN_SEG_3;
-            rxChar = 0;
-        }
-        else if (rxChar == 't') {
-            sendBytes[MINUTE_TENS] = SEVEN_SEG_4;
-            rxChar = 0;
-        }
-        else if (rxChar == 'y') {
-            sendBytes[MINUTE_TENS] = SEVEN_SEG_5;
-            rxChar = 0;
-        }
-        else if (rxChar == 'u') {
-            sendBytes[MINUTE_TENS] = SEVEN_SEG_6;
-            rxChar = 0;
-        }
-        else if (rxChar == 'i') {
-            sendBytes[MINUTE_TENS] = SEVEN_SEG_7;
-            rxChar = 0;
-        }
-        else if (rxChar == 'o') {
-            sendBytes[MINUTE_TENS] = SEVEN_SEG_8;
-            rxChar = 0;
-        }
-        else if (rxChar == 'p') {
-            sendBytes[MINUTE_TENS] = SEVEN_SEG_9;
-            rxChar = 0;
-        }
-        */
-
-
         for(i = 0; i < NUM_SHIFT_REGISTERS; i++){
             spiSendChar(sendBytes[i]);
         }
         latch595();
-
-        //spiSendChar(0xAA);
     }
 }
         
