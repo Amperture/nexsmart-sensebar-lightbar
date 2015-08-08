@@ -28,15 +28,15 @@ LDFLAGS = -mmcu=$(MCU) -Wl,-Map=$(OUTDIR)/$(TARGET).map
 #######################################
 # binaries
 #######################################
-TOOLPREFIX 	= /opt/energia/hardware/tools/msp430/bin
-CC      	= $(TOOLPREFIX)/msp430-gcc
-LD      	= $(TOOLPREFIX)/msp430-ld
-AR      	= $(TOOLPREFIX)/msp430-ar
-AS      	= $(TOOLPREFIX)/msp430-gcc
-GASP    	= $(TOOLPREFIX)/msp430-gasp
-NM      	= $(TOOLPREFIX)/msp430-nm
-GDB			= $(TOOLPREFIX)/msp430-gdb
-OBJCOPY 	= $(TOOLPREFIX)/msp430-objcopy
+TOOLPREFIX 	= 
+CC      	= msp430-gcc
+LD      	= msp430-ld
+AR      	= msp430-ar
+AS      	= msp430-gcc
+GASP    	= msp430-gasp
+NM      	= msp430-nm
+GDB			= msp430-gdb
+OBJCOPY 	= msp430-objcopy
 MAKETXT 	= srec_cat
 UNIX2DOS	= unix2dos
 RM      	= rm -f

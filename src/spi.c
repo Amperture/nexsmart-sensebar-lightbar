@@ -20,6 +20,28 @@
 #include <stdint.h>
 
 uint8_t txChar;
+/* Encoding for the 7-Segment Data 
+ *
+ *              0   1   2   3   4   5   6   7   8   9
+ *
+ *      TEMPERATURE:
+ *          Tens:
+ *              a   b   c   d   e   f   g   h   i   j
+ *          Ones:
+ *              A   B   C   D   E   F   G   H   I   J
+ *
+ *      HOURS:
+ *          Tens:
+ *              k   l   m   n   o   p   q   r   s   t
+ *          Ones:
+ *              K   L   M   N   O   P   Q   R   S   T
+ *
+ *      MINUTES:
+ *          Tens:
+ *              0   1   2   3   4   5   6   7   8   9 
+ *          Ones:
+ *              )   !   @   #   $   %   ^   &   *   (
+ */
 
 void spiInit(){
     UCB0CTL1 |= UCSWRST;
