@@ -21,60 +21,27 @@
 #include "spi.h"
 
 /* Defines for 7 Segment Number display Bytes */
-#define SEVEN_SEG_0 BIT0 + BIT1 + BIT2 + BIT3 + BIT4 + BIT5
-#define SEVEN_SEG_1 BIT1 + BIT2
-#define SEVEN_SEG_2 BIT0 + BIT1 + BIT6 + BIT4 + BIT3
-#define SEVEN_SEG_3 BIT0 + BIT1 + BIT2 + BIT3 + BIT6
-#define SEVEN_SEG_4 BIT6 + BIT5 + BIT1 + BIT2
-#define SEVEN_SEG_5 BIT0 + BIT5 + BIT6 + BIT2 + BIT3
-#define SEVEN_SEG_6 BIT0 + BIT5 + BIT4 + BIT3 + BIT2 + BIT6
-#define SEVEN_SEG_7 BIT0 + BIT1 + BIT2
-#define SEVEN_SEG_8 0xFF
-#define SEVEN_SEG_9 BIT0 + BIT5 + BIT6 + BIT1 + BIT2
-
-/* Defines for bytes to send to 7-Segment Shift Registers */
-#define NUM_SHIFT_REGISTERS 6
-#define TEMPERATURE_TENS 0
-#define TEMPERATURE_ONES 1 
-#define HOUR_TENS 2
-#define HOUR_ONES 3
-#define MINUTE_TENS 4
-#define MINUTE_ONES 5
+#define NUM_SHIFT_REGISTERS     4
+#define WATER_STORED            0
+#define WATER_USED              1
+#define ENERGY_STORED           2
+#define ENERGY_USED             3
 
 /* Encoding for the 7-Segment Data 
  *
- *              0   1   2   3   4   5   6   7   8   9
+ *              0   1   2   3   4   5   6   7   8
  *
- *      TEMPERATURE:
- *          Tens:
- *              a   b   c   d   e   f   g   h   i   j
- *          Ones:
- *              A   B   C   D   E   F   G   H   I   J
+ *      ENERGY:
+ *          Stored:
+ *              a   b   c   d   e   f   g   h   i
+ *          Consumed:
+ *              A   B   C   D   E   F   G   H   I
  *
- *      HOURS:
- *          Tens:
- *              k   l   m   n   o   p   q   r   s   t
- *          Ones:
- *              K   L   M   N   O   P   Q   R   S   T
- *
- *      MINUTES:
- *          Tens:
- *              0   1   2   3   4   5   6   7   8   9 
- *          Ones:
- *              )   !   @   #   $   %   ^   &   *   (
- */
-
-/*
- *  Encoding diagram for the 7-Segments of the display
- *          0
- *          ____
- *          |  | 1
- *        5 |  |
- *          ==== 6
- *        4 |  | 
- *          |  | 2
- *          ====
- *             3
+ *      Water:
+ *          Stored:
+ *              k   l   m   n   o   p   q   r   s
+ *          Consumed:
+ *              K   L   M   N   O   P   Q   R   S
  */
 
 void latch595(){
@@ -97,7 +64,10 @@ int main(void){
     //      3 -- Time Hour Ones
     //      4 -- Time Minute Tens
     //      5 -- Time Minute Ones
-    uint8_t sendBytes[6];
+    uint8_t sendBytes[NUM_SHIFT_REGISTERS];
+    uint8_t sendBytesActual[NUM_SHIFT_REGISTERS];
+    uint8_t sendByteBitMask = 1;
+    int sendByteByteMask = 0;
 
     // Set up 1MHz Clock
     BCSCTL1 = CALBC1_1MHZ;
@@ -114,263 +84,227 @@ int main(void){
         //
         //sendBytes[MINUTE_TENS] = SEVEN_SEG_8;
         //
+
         switch(rxChar){
 
-            //Commands for the tens digit of temperature.
+            //Commands for energy stored.
             case 'a':
-                sendBytes[TEMPERATURE_TENS] = SEVEN_SEG_0;
+                sendBytes[ENERGY_STORED] = 0x00;
                 rxChar = 0;
                 break;
+
             case 'b':
-                sendBytes[TEMPERATURE_TENS] = SEVEN_SEG_1;
+                sendBytes[ENERGY_STORED] = 0x01;
                 rxChar = 0;
                 break;
+
             case 'c':
-                sendBytes[TEMPERATURE_TENS] = SEVEN_SEG_2;
+                sendBytes[ENERGY_STORED] = 0x03;
                 rxChar = 0;
                 break;
+
             case 'd':
-                sendBytes[TEMPERATURE_TENS] = SEVEN_SEG_3;
+                sendBytes[ENERGY_STORED] = 0x07;
                 rxChar = 0;
                 break;
+
             case 'e':
-                sendBytes[TEMPERATURE_TENS] = SEVEN_SEG_4;
+                sendBytes[ENERGY_STORED] = 0x0F;
                 rxChar = 0;
                 break;
+
             case 'f':
-                sendBytes[TEMPERATURE_TENS] = SEVEN_SEG_5;
+                sendBytes[ENERGY_STORED] = 0x1F;
                 rxChar = 0;
                 break;
+
             case 'g':
-                sendBytes[TEMPERATURE_TENS] = SEVEN_SEG_6;
+                sendBytes[ENERGY_STORED] = 0x3F;
                 rxChar = 0;
                 break;
+
             case 'h':
-                sendBytes[TEMPERATURE_TENS] = SEVEN_SEG_7;
+                sendBytes[ENERGY_STORED] = 0x7F;
                 rxChar = 0;
                 break;
+
             case 'i':
-                sendBytes[TEMPERATURE_TENS] = SEVEN_SEG_8;
-                rxChar = 0;
-                break;
-            case 'j':
-                sendBytes[TEMPERATURE_TENS] = SEVEN_SEG_9;
+                sendBytes[ENERGY_STORED] = 0xFF;
                 rxChar = 0;
                 break;
 
-            //Commands for the ones digit of temperature.
+            //Commands for energy used.
             case 'A':
-                sendBytes[TEMPERATURE_ONES] = SEVEN_SEG_0;
+                sendBytes[ENERGY_USED] = 0x00;
                 rxChar = 0;
                 break;
+
             case 'B':
-                sendBytes[TEMPERATURE_ONES] = SEVEN_SEG_1;
+                sendBytes[ENERGY_USED] = 0x01;
                 rxChar = 0;
                 break;
+
             case 'C':
-                sendBytes[TEMPERATURE_ONES] = SEVEN_SEG_2;
+                sendBytes[ENERGY_USED] = 0x03;
                 rxChar = 0;
                 break;
+
             case 'D':
-                sendBytes[TEMPERATURE_ONES] = SEVEN_SEG_3;
+                sendBytes[ENERGY_USED] = 0x07;
                 rxChar = 0;
                 break;
+
             case 'E':
-                sendBytes[TEMPERATURE_ONES] = SEVEN_SEG_4;
+                sendBytes[ENERGY_USED] = 0x0F;
                 rxChar = 0;
                 break;
+
             case 'F':
-                sendBytes[TEMPERATURE_ONES] = SEVEN_SEG_5;
+                sendBytes[ENERGY_USED] = 0x1F;
                 rxChar = 0;
                 break;
+
             case 'G':
-                sendBytes[TEMPERATURE_ONES] = SEVEN_SEG_6;
+                sendBytes[ENERGY_USED] = 0x3F;
                 rxChar = 0;
                 break;
+
             case 'H':
-                sendBytes[TEMPERATURE_ONES] = SEVEN_SEG_7;
+                sendBytes[ENERGY_USED] = 0x7F;
                 rxChar = 0;
                 break;
+
             case 'I':
-                sendBytes[TEMPERATURE_ONES] = SEVEN_SEG_8;
-                rxChar = 0;
-                break;
-            case 'J':
-                sendBytes[TEMPERATURE_ONES] = SEVEN_SEG_9;
+                sendBytes[ENERGY_USED] = 0xFF;
                 rxChar = 0;
                 break;
 
-            //Commands for the tens digit of the hour
+            //Commands for water stored.
             case 'k':
-                sendBytes[HOUR_TENS] = SEVEN_SEG_0;
+                sendBytes[WATER_STORED] = 0x00;
                 rxChar = 0;
                 break;
+
             case 'l':
-                sendBytes[HOUR_TENS] = SEVEN_SEG_1;
+                sendBytes[WATER_STORED] = 0x01;
                 rxChar = 0;
                 break;
+
             case 'm':
-                sendBytes[HOUR_TENS] = SEVEN_SEG_2;
+                sendBytes[WATER_STORED] = 0x03;
                 rxChar = 0;
                 break;
+
             case 'n':
-                sendBytes[HOUR_TENS] = SEVEN_SEG_3;
+                sendBytes[WATER_STORED] = 0x07;
                 rxChar = 0;
                 break;
+
             case 'o':
-                sendBytes[HOUR_TENS] = SEVEN_SEG_4;
+                sendBytes[WATER_STORED] = 0x0F;
                 rxChar = 0;
                 break;
+
             case 'p':
-                sendBytes[HOUR_TENS] = SEVEN_SEG_5;
+                sendBytes[WATER_STORED] = 0x1F;
                 rxChar = 0;
                 break;
+
             case 'q':
-                sendBytes[HOUR_TENS] = SEVEN_SEG_6;
+                sendBytes[WATER_STORED] = 0x3F;
                 rxChar = 0;
                 break;
+
             case 'r':
-                sendBytes[HOUR_TENS] = SEVEN_SEG_7;
+                sendBytes[WATER_STORED] = 0x7F;
                 rxChar = 0;
                 break;
+
             case 's':
-                sendBytes[HOUR_TENS] = SEVEN_SEG_8;
-                rxChar = 0;
-                break;
-            case 't':
-                sendBytes[HOUR_TENS] = SEVEN_SEG_9;
+                sendBytes[WATER_STORED] = 0xFF;
                 rxChar = 0;
                 break;
 
-            //Commands for the Ones digit of the Hour
+            //Commands for water used.
             case 'K':
-                sendBytes[HOUR_ONES] = SEVEN_SEG_0;
+                sendBytes[WATER_USED] = 0x00;
                 rxChar = 0;
                 break;
+
             case 'L':
-                sendBytes[HOUR_ONES] = SEVEN_SEG_1;
+                sendBytes[WATER_USED] = 0x01;
                 rxChar = 0;
                 break;
+
             case 'M':
-                sendBytes[HOUR_ONES] = SEVEN_SEG_2;
+                sendBytes[WATER_USED] = 0x03;
                 rxChar = 0;
                 break;
+
             case 'N':
-                sendBytes[HOUR_ONES] = SEVEN_SEG_3;
+                sendBytes[WATER_USED] = 0x07;
                 rxChar = 0;
                 break;
+
             case 'O':
-                sendBytes[HOUR_ONES] = SEVEN_SEG_4;
+                sendBytes[WATER_USED] = 0x0F;
                 rxChar = 0;
                 break;
+
             case 'P':
-                sendBytes[HOUR_ONES] = SEVEN_SEG_5;
+                sendBytes[WATER_USED] = 0x1F;
                 rxChar = 0;
                 break;
+
             case 'Q':
-                sendBytes[HOUR_ONES] = SEVEN_SEG_6;
+                sendBytes[WATER_USED] = 0x3F;
                 rxChar = 0;
                 break;
+
             case 'R':
-                sendBytes[HOUR_ONES] = SEVEN_SEG_7;
+                sendBytes[WATER_USED] = 0x7F;
                 rxChar = 0;
                 break;
+
             case 'S':
-                sendBytes[HOUR_ONES] = SEVEN_SEG_8;
-                rxChar = 0;
-                break;
-            case 'T':
-                sendBytes[HOUR_ONES] = SEVEN_SEG_9;
-                rxChar = 0;
-                break;
-
-            // Commands for the Tens Digit of the Minute
-            case '0':
-                sendBytes[MINUTE_TENS] = SEVEN_SEG_0;
-                rxChar = 0;
-                break;
-            case '1':
-                sendBytes[MINUTE_TENS] = SEVEN_SEG_1;
-                rxChar = 0;
-                break;
-            case '2':
-                sendBytes[MINUTE_TENS] = SEVEN_SEG_2;
-                rxChar = 0;
-                break;
-            case '3':
-                sendBytes[MINUTE_TENS] = SEVEN_SEG_3;
-                rxChar = 0;
-                break;
-            case '4':
-                sendBytes[MINUTE_TENS] = SEVEN_SEG_4;
-                rxChar = 0;
-                break;
-            case '5':
-                sendBytes[MINUTE_TENS] = SEVEN_SEG_5;
-                rxChar = 0;
-                break;
-            case '6':
-                sendBytes[MINUTE_TENS] = SEVEN_SEG_6;
-                rxChar = 0;
-                break;
-            case '7':
-                sendBytes[MINUTE_TENS] = SEVEN_SEG_7;
-                rxChar = 0;
-                break;
-            case '8':
-                sendBytes[MINUTE_TENS] = SEVEN_SEG_8;
-                rxChar = 0;
-                break;
-            case '9':
-                sendBytes[MINUTE_TENS] = SEVEN_SEG_9;
-                rxChar = 0;
-                break;
-
-             
-            // Commands for the Ones Digit of the Minute
-            case ')':
-                sendBytes[MINUTE_ONES] = SEVEN_SEG_0;
-                rxChar = 0;
-                break;
-            case '!':
-                sendBytes[MINUTE_ONES] = SEVEN_SEG_1;
-                rxChar = 0;
-                break;
-            case '@':
-                sendBytes[MINUTE_ONES] = SEVEN_SEG_2;
-                rxChar = 0;
-                break;
-            case '#':
-                sendBytes[MINUTE_ONES] = SEVEN_SEG_3;
-                rxChar = 0;
-                break;
-            case '$':
-                sendBytes[MINUTE_ONES] = SEVEN_SEG_4;
-                rxChar = 0;
-                break;
-            case '%':
-                sendBytes[MINUTE_ONES] = SEVEN_SEG_5;
-                rxChar = 0;
-                break;
-            case '^':
-                sendBytes[MINUTE_ONES] = SEVEN_SEG_6;
-                rxChar = 0;
-                break;
-            case '&':
-                sendBytes[MINUTE_ONES] = SEVEN_SEG_7;
-                rxChar = 0;
-                break;
-            case '*':
-                sendBytes[MINUTE_ONES] = SEVEN_SEG_8;
-                rxChar = 0;
-                break;
-            case '(':
-                sendBytes[MINUTE_ONES] = SEVEN_SEG_9;
+                sendBytes[WATER_USED] = 0xFF;
                 rxChar = 0;
                 break;
         }
-        for(i = 0; i < NUM_SHIFT_REGISTERS; i++){
-            spiSendChar(sendBytes[i]);
+
+
+        for(i = 0; i < NUM_SHIFT_REGISTERS; ++i){
+            //sendBytesActual[i] = 0;
+        }
+
+        sendByteBitMask = (sendByteBitMask << 1);
+        
+        if (sendByteBitMask >= 0x80){
+            sendByteBitMask = 1;
+            ++sendByteByteMask;
+            if (sendByteByteMask == NUM_SHIFT_REGISTERS){
+                sendByteByteMask = 0;
+            }
+        }
+
+        // Set all lights on (Error Check)
+        /*
+        for(i = 0; i < NUM_SHIFT_REGISTERS; ++i){
+            sendBytesActual[i] = 0x0F;
+        }
+        /**/
+
+        // Code to either send single light at a time, or to send single
+        // light per shift register.
+        //sendBytesActual[sendByteByteMask] = sendByteBitMask;
+        /**/
+        for (i = 0; i < NUM_SHIFT_REGISTERS; ++i){
+            sendBytesActual[i] = sendBytes[i] & sendByteBitMask;
+        } 
+        /**/
+
+        for(i = 0; i < NUM_SHIFT_REGISTERS; ++i){
+            spiSendChar(sendBytesActual[i]);
         }
         latch595();
     }
